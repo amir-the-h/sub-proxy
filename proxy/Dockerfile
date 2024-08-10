@@ -7,16 +7,16 @@ RUN apk --no-cache add gettext
 RUN apk --no-cache add openssl
 
 # Make the /templates directory
-RUN mkdir -p /templates/conf.d
+RUN mkdir -p /proxy/conf.d
 # Make the /openssl directory
-RUN mkdir -p /openssl/certs
+RUN mkdir -p /proxy/openssl/certs
 
 # Copy nginx configuration templates
-COPY conf.d.templates/* /templates/conf.d
+COPY conf.d/* /proxy/conf.d
 # Copy openssl configuration template
-COPY openssl.cnf.template /templates/openssl.cnf.template
+COPY openssl.cnf.template /proxy/openssl.cnf.template
 # Copy certificates and private keys
-COPY certs/* /openssl/certs/
+COPY certs/* /proxy/openssl/certs/
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 

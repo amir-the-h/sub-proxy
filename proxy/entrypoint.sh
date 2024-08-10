@@ -1,19 +1,19 @@
 #!/bin/sh
 
-# Check if there is no .template file is in /templates/conf.d/
-if [ ! -f /templates/conf.d/*.template ]; then
-  echo "No Nginx configuration template found."
+# Check if there is no .template file is in /proxy/conf.d/
+if [ ! -f /proxy/conf.d/*.conf ]; then
+  echo "No Nginx configuration tfileemplate found."
   exit 1
 fi
 
 # Check if there is no /templates/openssl.cnf.template file
-if [ ! -f /templates/openssl.cnf.template ]; then
+if [ ! -f /proxy/openssl.cnf.template ]; then
   echo "openssl.cnf.template file not found."
   exit 1
 fi
 
-# Check all the .template files in /templates/conf.d/ and substitute environment variables and remove the .template extension
-for file in /templates/conf.d/*.template; do
+# Check all the .template files in /proxy/conf.d/ and substitute environment variables and remove the .template extension
+for file in /proxy/conf.d/*.conf; do
   envsubst '${HTTP_PORT} ${HTTPS_PORT} ${SUBDOMAIN} ${SDL} ${TLD}' <$file >/etc/nginx/conf.d/$(basename $file)
   # Announce the file has been processed
   echo "Processed $(basename $file)"
@@ -23,7 +23,7 @@ done
 DOMAIN=$SUBDOMAIN.$SDL.$TLD
 
 # Do the same for the openssl.cnf.template file
-envsubst '${HTTP_PORT} ${HTTPS_PORT} ${SUBDOMAIN} ${SDL} ${TLD}' </templates/openssl.cnf.template >/openssl/certs/$DOMAIN.cnf
+envsubst '${HTTP_PORT} ${HTTPS_PORT} ${SUBDOMAIN} ${SDL} ${TLD}' </proxy/openssl.cnf.template >/openssl/certs/$DOMAIN.cnf
 
 # Check if the certificate already exists, and not force the generation of a new one by FORCE_RENEW environment variable
 if [ -f /openssl/certs/$DOMAIN.crt ] && [ -z $FORCE_RENEW ] && openssl x509 -checkend 86400 -noout -in /openssl/certs/$DOMAIN.crt; then
