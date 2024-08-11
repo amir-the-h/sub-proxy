@@ -43,6 +43,9 @@ services:
         SDL: example
         TLD: com
         SERVICES: frontend:3000,backend:9000
+    ports:
+      - "80:8080" # The host port should be the same as the HTTP port
+      - "443:8443" # The host port should be the same as the HTTPS port
     volumes:
       - ./certs:/proxy/certs # OPTIONAL: To persist SSL certificates and be able to reuse them or add them to the trusted certificates
       - ./conf.d:/etc/nginx/conf.d # OPTIONAL: To add custom Nginx configuration files or override the default ones
