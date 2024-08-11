@@ -1,4 +1,4 @@
-[![Docker](https://github.com/amir-the-h/sub-proxy/actions/workflows/docker-publish.yml/badge.svg?branch=main)](https://github.com/amir-the-h/sub-proxy/actions/workflows/docker-publish.yml)
+[![Docker Build and Push](https://github.com/amir-the-h/sub-proxy/actions/workflows/docker-publish.yml/badge.svg?branch=main)](https://github.com/amir-the-h/sub-proxy/actions/workflows/docker-publish.yml)
 # SubdomainProxy
 
 SubdomainProxy is a Dockerized Nginx server for routing HTTP/HTTPS traffic based on subdomains to specified upstream services. It automatically generates self-signed SSL certificates for secure connections, simplifying subdomain management and SSL termination in a containerized environment.
