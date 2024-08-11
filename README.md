@@ -3,11 +3,6 @@
 
 SubdomainProxy is a Dockerized Nginx server for routing HTTP/HTTPS traffic based on subdomains to specified upstream services. It automatically generates self-signed SSL certificates for secure connections, simplifying subdomain management and SSL termination in a containerized environment.
 
-## Language Composition
-
-- Shell: 74.6%
-- Dockerfile: 25.4%
-
 ## Features
 
 - Automatic subdomain routing
