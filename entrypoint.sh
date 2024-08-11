@@ -57,6 +57,7 @@ DOMAIN=$SUBDOMAIN.$SDL.$TLD
 
 # Compile the default.conf files
 compile /proxy/default.conf /etc/nginx/conf.d/default.conf
+echo "Compiled default.conf"
 
 # Compile the openssl.cnf file
 compile /proxy/openssl.cnf /proxy/certs/$DOMAIN.cnf

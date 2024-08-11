@@ -26,7 +26,7 @@ RUN apk --no-cache add openssl
 RUN mkdir -p /proxy/certs
 
 # Copy nginx configuration templates
-COPY conf.d/default.conf /proxy/default.conf
+COPY default.conf /proxy/default.conf
 # Copy openssl configuration template
 COPY openssl.cnf /proxy/openssl.cnf
 # Copy entrypoint script

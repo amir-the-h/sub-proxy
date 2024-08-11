@@ -30,11 +30,6 @@ SubdomainProxy is a Dockerized Nginx server for routing HTTP/HTTPS traffic based
 - `FORCE_RENEW`: Force renewing the SSL certificate. Default is false.
 - `SERVICES`: The comma-separated list of pairs of service names and ports to route traffic to. Example: `frontend:3000,backend:9000`.
 
-### Running the Docker container
-```bash
-docker run -d amirtheh/sub-proxy --build-arg SUBDOMAIN=local --build-arg SDL=example --build-arg TLD=com --build-arg SERVICES=frontend:3000,backend:9000
-```
-
 ### Docker Compose
 ```yaml
 services:
