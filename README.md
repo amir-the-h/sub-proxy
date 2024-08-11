@@ -18,24 +18,49 @@ SubdomainProxy is a Dockerized Nginx server for routing HTTP/HTTPS traffic based
 ## Prerequisites
 
 - Docker
-- Docker Compose
 
 ## Getting Started
 
-### Clone the repository
+### Build Arguments
+- `HTTP_PORT`: The port to listen for HTTP traffic. Default is 80.
+- `HTTPS_PORT`: The port to listen for HTTPS traffic. Default is 443.
+- `SUBDOMAIN`: The subdomain to route traffic to.
+- `SDL`: The SDL part of domain.
+- `TLD`: The TLD part of domain.
+- `FORCE_RENEW`: Force renewing the SSL certificate. Default is false.
+- `SERVICES`: The comma-separated list of pairs of service names and ports to route traffic to. Example: `frontend:3000,backend:9000`.
 
+### Running the Docker container
 ```bash
-git clone https://github.com/amir-the-h/sub-proxy.git
-cd sub-proxy
+docker run -d amirtheh/sub-proxy --build-arg SUBDOMAIN=local --build-arg SDL=example --build-arg TLD=com --build-arg SERVICES=frontend:3000,backend:9000
 ```
 
-### Configuration
-Update the `nginx.conf` file to configure your subdomain routing rules.
-Add your upstream services in the `upstreams.conf` file and docker-compose services in the `docker-compose.yml` file.
+### Docker Compose
+```yaml
+services:
+  proxy:
+    image: amirtheh/sub-proxy
+    build:
+      args:
+        HTTP_PORT: 8080 # OPTIONAL: To change the HTTP port to listen on. You can handle the port forwarding from Windows to WSL for example.
+        HTTPS_PORT: 8443 # OPTIONAL: To change the HTTPS port to listen on. You can handle the port forwarding from Windows to WSL for example.
+        SUBDOMAIN: local
+        SDL: example
+        TLD: com
+        SERVICES: frontend:3000,backend:9000
+    volumes:
+      - ./certs:/proxy/certs # OPTIONAL: To persist SSL certificates and be able to reuse them or add them to the trusted certificates
+      - ./conf.d:/etc/nginx/conf.d # OPTIONAL: To add custom Nginx configuration files or override the default ones
+    networks:
+      - proxy
 
-### Build and run the Docker container
+networks:
+  proxy:
+    driver: bridge
+```
+
 ```bash
-docker-compose up --build -d
+docker-compose up -d
 ```
 
 ### License

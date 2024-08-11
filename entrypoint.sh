@@ -20,25 +20,32 @@ if [ ! -f /proxy/openssl.cnf ]; then
   exit 1
 fi
 
-# Ensure UPSTREAMS is set
-if [ -z "$UPSTREAMS" ]; then
-  echo "UPSTREAMS environment variable not set."
+# Ensure SERVICES is set
+if [ -z "$SERVICES" ]; then
+  echo "SERVICES environment variable not set."
   exit 1
 fi
 
-# Split UPSTREAMS into an array
-IFS=',' 
-set -- $UPSTREAMS
-
 BLOCKS=""
+UPSTREAMS=""
+IFS=',' 
+set -- $SERVICES
+
 for UPSTREAM in "$@"; do
-  BLOCKS="$BLOCKS      if (\$host ~* \"^$UPSTREAM\.${SUBDOMAIN}$\") {\n"
-  BLOCKS="$BLOCKS          set \$upstream \"$UPSTREAM\";\n"
+  # Break the UPSTREAM into SERVICE and PORT by splitting on the colon
+  SERVICE=$(echo $UPSTREAM | cut -d':' -f1)
+  PORT=$(echo $UPSTREAM | cut -d':' -f2)
+  UPSTREAMS="${UPSTREAMS}upstream $SERVICE {\n"
+  UPSTREAMS="${UPSTREAMS}    server $SERVICE:$PORT;\n"
+  UPSTREAMS="${UPSTREAMS}}\n"
+  BLOCKS="$BLOCKS      if (\$host ~* \"^$SERVICE\.${SUBDOMAIN}\.${SDL}\.${TLD}$\") {\n"
+  BLOCKS="$BLOCKS          set \$upstream \"$SERVICE\";\n"
   BLOCKS="$BLOCKS      }\n"
 done
 
 # Replace the block variable in the default.conf file
-sed -i "s|##UPSTREAMS##|$BLOCKS|g" /proxy/default.conf
+sed -i "s|##BLOCKS##|$BLOCKS|g" /proxy/default.conf
+sed -i "s|##UPSTREAMS##|$UPSTREAMS|g" /proxy/default.conf
 
 # Make a compile function to replace the environment variables in the given file
 compile() {
