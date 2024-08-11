@@ -64,7 +64,7 @@ compile /proxy/openssl.cnf /proxy/certs/$DOMAIN.cnf
 echo "Compiled openssl.cnf"
 
 # Check if the certificate already exists, and not force the generation of a new one by FORCE_RENEW environment variable
-if [ -f /proxy/certs/$DOMAIN.crt ] && [ -z $FORCE_RENEW ] && openssl x509 -checkend 86400 -noout -in /proxy/certs/$DOMAIN.crt; then
+if [ -f /proxy/certs/$DOMAIN.crt ] && [ -z $FORCE_RENEW != 'true' ] && openssl x509 -checkend 86400 -noout -in /proxy/certs/$DOMAIN.crt; then
   # Certificate is still valid
   echo "Certificate exists and is still valid"
 else
