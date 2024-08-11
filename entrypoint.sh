@@ -1,8 +1,16 @@
 #!/bin/sh
 
-# Sanity check for the .conf files
-if [ ! "$(ls -A /proxy/conf.d)" ]; then
-  echo "No .conf files found in /proxy/conf.d"
+# Function to handle the SIGTERM signal
+handle_term() {
+    echo "Received SIGTERM, shutting down..."
+    exit 0
+}
+
+trap 'handle_term' TERM INT
+
+# Sanity check for /proxy/default.conf
+if [ ! -f /proxy/default.conf ]; then
+  echo "default.conf file not found."
   exit 1
 fi
 
@@ -12,6 +20,26 @@ if [ ! -f /proxy/openssl.cnf ]; then
   exit 1
 fi
 
+# Ensure UPSTREAMS is set
+if [ -z "$UPSTREAMS" ]; then
+  echo "UPSTREAMS environment variable not set."
+  exit 1
+fi
+
+# Split UPSTREAMS into an array
+IFS=',' 
+set -- $UPSTREAMS
+
+BLOCKS=""
+for UPSTREAM in "$@"; do
+  BLOCKS="$BLOCKS      if (\$host ~* \"^$UPSTREAM\.${SUBDOMAIN}$\") {\n"
+  BLOCKS="$BLOCKS          set \$upstream \"$UPSTREAM\";\n"
+  BLOCKS="$BLOCKS      }\n"
+done
+
+# Replace the block variable in the default.conf file
+sed -i "s|##UPSTREAMS##|$BLOCKS|g" /proxy/default.conf
+
 # Make a compile function to replace the environment variables in the given file
 compile() {
   envsubst '${HTTP_PORT} ${HTTPS_PORT} ${SUBDOMAIN} ${SDL} ${TLD}' <$1 >$2
@@ -20,11 +48,8 @@ compile() {
 # Get the domain from the environment variables
 DOMAIN=$SUBDOMAIN.$SDL.$TLD
 
-# Compile the .conf files
-for file in /proxy/conf.d/*.conf; do
-  compile $file /etc/nginx/conf.d/$(basename $file)
-  echo "Compiled $(basename $file)"
-done
+# Compile the default.conf files
+compile /proxy/default.conf /etc/nginx/conf.d/default.conf
 
 # Compile the openssl.cnf file
 compile /proxy/openssl.cnf /proxy/certs/$DOMAIN.cnf
@@ -40,7 +65,7 @@ else
   openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /proxy/certs/$DOMAIN.key \
     -out /proxy/certs/$DOMAIN.crt \
-    -config /proxy/certs/$DOMAIN.cnf
+    -config /proxy/certs/$DOMAIN.cnf > /dev/null 2>&1
 
   # Generate the certificate signed by the private key
   echo "Generating certificate signed by the private key"
